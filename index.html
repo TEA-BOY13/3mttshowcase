@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3MTT potisku ALC hearing inspared assistance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body{
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, #005f73, #0a9396, #94d2bd);
+  background-size: 400% 400%;
+  animation: oceanFlow 20s ease infinite;
+}
+
+@keyframes oceanFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    #transcript {
+      font-size: 1.2rem;
+      margin: 20px auto;
+      max-width: 800px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow-wrap: break-word;
+    }
+
+    .paragraph {
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      color: red;
+      font-weight: bold;
+    }
+
+    button {
+      display: block;
+      margin: 30px auto;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    @media (max-width: 600px) {
+      #transcript { font-size: 1rem; padding: 10px; }
+      button { width: 90%; font-size: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <h3>3MTT potiskum ALC hearing inspared assistance</h3>
+  <div id="transcript"></div>
+  <button onclick="generatePDF()">Save as PDF</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const transcriptContainer = document.getElementById("transcript");
+    let recognition;
+    let currentParagraph = null;
+    let lastSpokenTime = Date.now();
+    let silenceChecker = null;
+
+    const objectKeywords = ["table", "chair", "phone", "computer", "car", "book", "window", "door", "light", "glass", "pen", "tree", "water"];
+
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (window.SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-NG";
+
+      recognition.onstart = () => {
+        console.log("Speech recognition started.");
+        if (!currentParagraph) createNewParagraph();
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcript += event.results[i][0].transcript;
+        }
+
+        currentParagraph.innerHTML = highlightText(transcript);
+        lastSpokenTime = Date.now(); // reset silence time
+      };
+
+      recognition.onend = () => {
+        console.log("Speech recognition ended, restarting...");
+        recognition.start(); // always restart immediately
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        recognition.stop();
+        setTimeout(() => recognition.start(), 1000);
+      };
+
+      // Start listening and silence monitoring
+      recognition.start();
+      startSilenceMonitor();
+    } else {
+      alert("Speech Recognition is not supported in this browser.");
+    }
+
+    function startSilenceMonitor() {
+      silenceChecker = setInterval(() => {
+        const now = Date.now();
+        const silenceDuration = now - lastSpokenTime;
+
+        if (silenceDuration >= 1000) { 
+          console.log("2 seconds of silence detected. Creating new paragraph...");
+          createNewParagraph();
+          lastSpokenTime = Date.now(); // reset for next paragraph
+        }
+      }, 1000); // check every 1 second
+    }
+
+    function createNewParagraph() {
+      currentParagraph = document.createElement("p");
+      currentParagraph.classList.add("paragraph");
+      currentParagraph.innerHTML = ""; // Start fresh
+      transcriptContainer.appendChild(currentParagraph);
+    }
+
+    function highlightText(text) {
+      let words = text.trim().split(" ");
+      if (words[0]) {
+        words[0] = `<span class="highlight">${words[0]}</span>`;
+      }
+
+      words = words.map(word => {
+        if (objectKeywords.includes(word.toLowerCase())) {
+          return `<span class="highlight">${word}</span>`;
+        }
+        return word;
+      });
+
+      return words.join(" ");
+    }
+
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let paragraphs = document.querySelectorAll(".paragraph");
+      let content = "";
+      paragraphs.forEach(p => content += p.textContent + "\n\n");
+      doc.text(content, 10, 10);
+      doc.save("transcript.pdf");
+    }
+  </script>
+</body>
+  </html
