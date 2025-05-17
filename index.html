@@ -59,7 +59,8 @@ body {
     }
 
     button {
-      display: block;
+      display: flex;
+      flex: left;
       margin: 30px auto;
       padding: 10px 20px;
       font-size: 1rem;
@@ -78,16 +79,14 @@ body {
       #transcript { font-size: 1rem; padding: 10px; }
       button { 
               width: 90%; 
-              font-size: 1.1rem; 
-              display: flex;
-              float: left;
+              font-size: 1.1rem;
              }
     }
   </style>
 </head>
 <body>
  <marquee> <h3>3MTT potiskum ALC hearing inspared assistance</h3></marquee>
-  <button onclick="generatePDF()">Save as PDF</button>
+  <button onclick="generatePDF()">Save as PDF</button><br>
   
   <div id="transcript"></div>
   
@@ -159,12 +158,12 @@ body {
         const now = Date.now();
         const silenceDuration = now - lastSpokenTime;
 
-        if (silenceDuration >= 1000) { 
+        if (silenceDuration >= 2000) { 
           console.log("2 seconds of silence detected. Creating new paragraph...");
           createNewParagraph();
           lastSpokenTime = Date.now(); // reset for next paragraph
         }
-      }, 1000); // check every 1 second
+      }, 2000); // check every 1 second
     }
 
     function createNewParagraph() {
