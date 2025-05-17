@@ -157,12 +157,12 @@ body {
         const now = Date.now();
         const silenceDuration = now - lastSpokenTime;
 
-        if (silenceDuration >= 2000) { 
-          console.log("2 seconds of silence detected. Creating new paragraph...");
+        if (silenceDuration >= 1000) { 
+          console.log("1 seconds of silence detected. Creating new paragraph...");
           createNewParagraph();
           lastSpokenTime = Date.now(); // reset for next paragraph
         }
-      }, 2000); // check every 1 second
+      }, 1000); // check every 1 second
     }
 
     function createNewParagraph() {
